@@ -1,0 +1,86 @@
+function doGet() {
+var sheet = SpreadsheetApp.openById('1SYdx3OZ7ziPdL7UWNRr_FEKAz0V43c3kUyqVdDABUOM').getSheetByName('FR1');
+var data = sheet.getDataRange().getValues();
+
+
+var html = '<style>';
+html += '.property-container { border: 1px solid #ccc; padding: 10px; margin-bottom: 20px; font-family: Lato; background-color: #f4e6d6; }'; // Set the background color to light tan
+html += '.filter-section { margin-bottom: 10px; }';
+html += '</style>';
+
+
+html += '<div class="property-list">';
+html += '<div class="filter-section">'; // Create a container for the filter options
+html += '<label for="bedroomFilter">Filter by Bedrooms:</label>';
+html += '<select id="bedroomFilter">';
+html += '<option value="all">All</option>';
+html += '<option value="1">1 Bedroom</option>';
+html += '<option value="2">2 Bedrooms</option>';
+html += '<option value="3">3 Bedrooms</option>';
+html += '<option value="4">4 Bedrooms</option>';
+html += '</select>';
+html += '<button id="filterButton">Filter</button>'; // Add the filter button
+html += '</div>'; // Close the container for filter options
+
+
+for (var i = 1; i < data.length; i++) {
+var property = {
+propertyAddress: data[i][8],
+listingAgentName: data[i][2],
+price: data[i][12],
+description: data[i][10],
+agentEmail: data[i][1],
+agentPhone: data[i][3],
+bedrooms: data[i][6],
+bathrooms: data[i][7],
+squareFootage: data[i][9],
+propertyType: data[i][15],
+photos: data[i][14]
+};
+
+
+html += '<div class="property-container">';
+html += '<h2>' + property.propertyAddress + '</h2>';
+html += '<p><strong>Listing Agent Name:</strong> ' + property.listingAgentName + '</p>';
+html += '<p><strong>Price:</strong> ' + property.price + '</p>';
+html += '<p><strong>Description:</strong> ' + property.description + '</p>';
+html += '<p><strong>Agent Email:</strong> <a href="mailto:' + property.agentEmail + '">' + property.agentEmail + '</a></p>';
+html += '<p><strong>Agent Phone:</strong> ' + property.agentPhone + '</p>';
+html += '<p><strong>Bedrooms:</strong> ' + property.bedrooms + '</p>';
+html += '<p><strong>Bathrooms:</strong> ' + property.bathrooms + '</p>';
+html += '<p><strong>Square Feet:</strong> ' + property.squareFootage + '</p>';
+html += '<p><strong>Property Type:</strong> ' + property.propertyType + '</p>';
+html += '<p><strong>See Photos Here:</strong> ' + (property.photos ? '<a href="' + property.photos + '" target="_blank">' + property.photos + '</a>' : "Coming Soon") + '</p>';
+html += '</div>';
+}
+
+
+html += '</div>';
+
+
+html += '<script>';
+html += 'document.getElementById("filterButton").addEventListener("click", function() {';
+html += ' var selectedValue = document.getElementById("bedroomFilter").value;';
+html += ' var containers = document.querySelectorAll(".property-container");';
+
+
+html += ' containers.forEach(function(container) {';
+html += ' var bedroomsValue = container.querySelector("p strong:contains(\'Bedrooms:\')").nextSibling.textContent.trim();';
+
+
+html += ' if (selectedValue === "all" || bedroomsValue === selectedValue) {';
+html += ' container.style.display = "block";';
+html += ' } else {';
+html += ' container.style.display = "none";';
+html += ' }';
+
+
+html += ' });';
+html += '});';
+html += '</script>';
+
+
+return HtmlService.createHtmlOutput(html).setSandboxMode(HtmlService.SandboxMode.IFRAME);
+}
+
+
